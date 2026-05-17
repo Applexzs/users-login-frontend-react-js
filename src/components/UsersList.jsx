@@ -1,6 +1,6 @@
 import { UserRow } from "./UserRow";
 
-export const UsersList = ({handlerRemoveUser, users = [] }) => {
+export const UsersList = ({handlerUserSelectedForm, handlerRemoveUser, users = [] }) => {
   return (
     <>
       <p>Listado de Usuarios</p>
@@ -15,8 +15,8 @@ export const UsersList = ({handlerRemoveUser, users = [] }) => {
           </tr>
         </thead>
         <tbody>
-          {users.map(({id, username, email}) => (
-           <UserRow key={id} id={id} username={username} email={email} handlerRemoveUser={handlerRemoveUser}/>
+          {users.map(({id, username, email, password}) => (
+           <UserRow key={id} id={id} username={username} email={email} password={password} handlerUserSelectedForm={handlerUserSelectedForm} handlerRemoveUser={handlerRemoveUser}/>
           ))}
         </tbody>
       </table>

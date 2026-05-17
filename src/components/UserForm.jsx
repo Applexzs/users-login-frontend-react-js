@@ -1,10 +1,17 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 
-export const UserForm = ({handlerAddUser, initalUserForm}) => {
+export const UserForm = ({userSelected, handlerAddUser, initalUserForm}) => {
     const [userForm, setUserForm] = useState(initalUserForm);
 
-    const { username, password, email } = userForm;
+    const { id, username, password, email } = userForm;
+
+    useEffect(() => {
+        setUserForm({
+            ...userSelected,
+            // password: "",
+        });
+    }, [userSelected]);
 
     const onInputChange = ({ target }) => {
         // console.log(target.value);
@@ -32,8 +39,9 @@ export const UserForm = ({handlerAddUser, initalUserForm}) => {
         <input className="form-control my-3 w-75" placeholder="Username" name="username" value={username} onChange={onInputChange}/>
         <input className="form-control my-3 w-75" placeholder="Password" name="password" value={password} type="password" onChange={onInputChange}/>
         <input className="form-control my-3 w-75" placeholder="Email" name="email" value={email} onChange={onInputChange}/>
+        <input type="hidden" name="id" value={id}/>
         <button className="btn btn-primary" type="submit">
-            Crear
+            {id > 0 ? "Editar": "Crear"}
         </button>
       </form>
     </>
