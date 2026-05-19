@@ -3,9 +3,7 @@ import { UsersList } from "../components/UsersList";
 import { useUsers } from "../hooks/useUsers";
 
 
-export const UsersPage = () => {
-    
-    const {
+export const UsersPage = ({
         users,
         userSelected,
         initalUserForm,
@@ -15,8 +13,7 @@ export const UsersPage = () => {
         handlerUserSelectedForm,
         handlerOpenForm,
         handlerCloseForm,
-    } = useUsers();
-
+    }) => {
     
   return (
     <>
@@ -29,7 +26,7 @@ export const UsersPage = () => {
       <div className="row">
         
         <div className="col">
-          {visibleForm || <button className="btn btn-success my-2" onClick={handlerOpenForm}>Nuevo Usuario</button>}
+          {visibleForm || <button className="btn btn-primary my-2" onClick={handlerOpenForm}>Nuevo Usuario</button>}
           
             { users.length === 0 ? 
             <div className="alert alert-warning">No ha usuarios en el sistema</div> :
