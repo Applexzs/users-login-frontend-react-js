@@ -1,42 +1,45 @@
-import { UserModalForm } from "./components/UserModalForm";
-import { UsersList } from "./components/UsersList";
-import { useUsers } from "./hooks/useUsers";
+import { useReducer } from "react";
+import { LoginPage } from "./auth/pages/LoginPage";
+import { UsersPage } from "./pages/UsersPage";
+import { loginReducer } from "./auth/reducers/loginReducer";
+import Swal from "sweetalert2";
+import { NavBar } from "./components/layout/NavBar";
 
+const initialLogin = JSON.parse(sessionStorage.getItem("login")) || {
+  isAuth: false,
+  user: undefined,
+};
 
 export const UsersApp = () => {
-    
-    const {
-        users,
-        userSelected,
-        initalUserForm,
-        visibleForm,
-        handlerAddUser,
-        handlerRemoveUser,
-        handlerUserSelectedForm,
-        handlerOpenForm,
-        handlerCloseForm,
-    } = useUsers();
+  const [login, dispatch] = useReducer(loginReducer, initialLogin);
 
-    
+  const handlerLogin = ({ username, password }) => {
+    if (username === "admin" && password === "12345") {
+      const user = { username: "admin" };
+
+      dispatch({
+        type: "login",
+        payload: user,
+      });
+      sessionStorage.setItem("login", JSON.stringify({
+        isAuth: true,
+        user: user,
+      }));
+    } else {
+      Swal.fire("Error Login", "Username y Password invalidos", "error");
+    }
+  };
+
+  const handlerLogout = () => {
+    dispatch({
+      type: "logout",
+    });
+    sessionStorage.removeItem("login");
+  }
+  
   return (
     <>
-    {!visibleForm || <div className="abrir-modal animacion fadeIn">
-      <UserModalForm userSelected = {userSelected} initalUserForm = {initalUserForm} handlerAddUser = {handlerAddUser} handlerCloseForm = {handlerCloseForm}/>
-      </div>}
-    <div className="container my-4">
-      <h2>Users App</h2>
-      <div className="row">
-        
-        <div className="col">
-          {visibleForm || <button className="btn btn-success my-2" onClick={handlerOpenForm}>Nuevo Usuario</button>}
-          
-            { users.length === 0 ? 
-            <div className="alert alert-warning">No ha usuarios en el sistema</div> :
-             <UsersList handlerUserSelectedForm={handlerUserSelectedForm} handlerRemoveUser={handlerRemoveUser} users={users} />}
-          
-        </div>
-      </div>
-    </div>
+      {login.isAuth ? <> <NavBar login={login} handlerLogout={handlerLogout}/> <UsersPage /> </>: <LoginPage handlerLogin={handlerLogin} />}
     </>
   );
 };
