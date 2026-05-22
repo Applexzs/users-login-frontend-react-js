@@ -2,16 +2,10 @@ import { useReducer, useState } from "react";
 import { usersReducer } from "../reducers/usersReducer";
 import Swal from "sweetalert2";
 import { useNavigate } from "react-router-dom";
+import { findAll, remove, save, update } from "../services/userService";
 
-const initialUsers = [
-    {
-        id: 1,
-        username: "pepe",
-        password: "12345",
-        email: "pepe@mail.com"
-    }
+const initialUsers = [];
 
-];
 const initalUserForm = {
     id: 0,
     username: "",
@@ -25,13 +19,28 @@ export const useUsers = () => {
     const [userSelected, setUserSelected] = useState(initalUserForm);
     const [visibleForm, setVisibleForm] = useState(false);
     const navigate = useNavigate();
+    const getUsers = async() => {
+        const result = await findAll();
+        console.log(result);
+        dispatch({
+            type: "loadingUsers",
+            payload: result.data,
+        });
+    }
 
-    const handlerAddUser = (user) => {
+    
+    const handlerAddUser = async(user) => {
+        let response;
+        if(user.id === 0){
+            response = await save(user);
+        } else {
+            response = await update(user);
+        }
         // console.log(user);
         const type = (user.id === 0) ? "addUser" : "updateUser"; 
         dispatch({
             type: type,
-            payload: user,
+            payload: response.data,
         });
         Swal.fire({
             title: (user.id === 0) ? "Usuario Creado" : "Usuario Actualizado",
@@ -55,6 +64,7 @@ export const useUsers = () => {
             confirmButtonText: "Si, Eliminarlo!"
         }).then((result) => {
             if (result.isConfirmed) {
+                remove(id);
                 dispatch({
                     type: "removeUser",
                     payload: id,
@@ -94,5 +104,6 @@ export const useUsers = () => {
         handlerUserSelectedForm,
         handlerOpenForm,
         handlerCloseForm,
+        getUsers,
     }
 }
