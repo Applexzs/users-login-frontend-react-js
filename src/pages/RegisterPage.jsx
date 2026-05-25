@@ -13,6 +13,8 @@ export const RegisterPage = () => {
         if (id) {
             const user = users.find(u => u.id == id) || initalUserForm;
             setUserSelected(user);
+        } else {
+            setUserSelected(initalUserForm);
         }
     }, [id]);
     return(

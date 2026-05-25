@@ -24,28 +24,13 @@ export const UserForm = ({ userSelected, handlerCloseForm }) => {
     });
   };
 
-  const onSubmit = (event) => {
+  const onSubmit = async (event) => {
     event.preventDefault();
-    // console.log(userForm);
-    // if (!username || (!password && id == 0) || !email) {
-    //   Swal.fire({
-    //     title: "Error de validacion",
-    //     text: "Debe completar los campos del formulario",
-    //     icon: "error",
-    //   });
-    //   return;
-    // }
-    // if(!email.includes("@")) {
-    //   Swal.fire({
-    //     title: "Error de validacion email",
-    //     text: "El email debe ser valido e incluir un @",
-    //     icon: "error",
-    //   });
-    //   return;
-    // }
     // Guardar el user form en el listado de usuarios
-    handlerAddUser(userForm);
-    setUserForm(initalUserForm);
+    const success = await handlerAddUser(userForm);
+    if (success) {
+      setUserForm(initalUserForm);
+    }
   };
 
   const onCloseForm = () => {

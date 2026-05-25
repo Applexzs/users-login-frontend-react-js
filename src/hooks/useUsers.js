@@ -59,6 +59,7 @@ export const useUsers = () => {
             });
             handlerCloseForm();
             navigate("/users");
+            return true;
 
         } catch (error) {
             if(error.response && error.response.status == 400){
@@ -73,6 +74,7 @@ export const useUsers = () => {
             } else {
                 throw error;
             }
+            return false;
         }
     }
 
