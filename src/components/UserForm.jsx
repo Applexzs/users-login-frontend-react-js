@@ -3,10 +3,11 @@ import Swal from "sweetalert2";
 import { UserContext } from "../context/UserContext";
 
 export const UserForm = ({ userSelected, handlerCloseForm }) => {
-  const {initalUserForm, handlerAddUser, errors} = useContext(UserContext);
+  const { initalUserForm, handlerAddUser, errors } = useContext(UserContext);
   const [userForm, setUserForm] = useState(initalUserForm);
 
-  const { id, username, password, email } = userForm;
+  const { id, username, password, email, admin } = userForm;
+  const [checked, setChecked] = useState(userForm.admin);
 
   useEffect(() => {
     setUserForm({
@@ -24,6 +25,14 @@ export const UserForm = ({ userSelected, handlerCloseForm }) => {
     });
   };
 
+  const onCheckboxChange = () => {
+    setChecked(!checked);
+    setUserForm({
+      ...userForm,
+      admin: checked,
+    });
+  };
+
   const onSubmit = async (event) => {
     event.preventDefault();
     // Guardar el user form en el listado de usuarios
@@ -36,7 +45,7 @@ export const UserForm = ({ userSelected, handlerCloseForm }) => {
   const onCloseForm = () => {
     handlerCloseForm();
     setUserForm(initalUserForm);
-  }
+  };
   return (
     <>
       <form onSubmit={onSubmit}>
@@ -52,12 +61,12 @@ export const UserForm = ({ userSelected, handlerCloseForm }) => {
           ""
         ) : (
           <input
-          className="form-control my-3 w-75"
-          placeholder="Password"
-          name="password"
-          value={password}
-          type="password"
-          onChange={onInputChange}
+            className="form-control my-3 w-75"
+            placeholder="Password"
+            name="password"
+            value={password}
+            type="password"
+            onChange={onInputChange}
           />
         )}
         <p className="text-danger">{errors?.password}</p>
@@ -69,11 +78,31 @@ export const UserForm = ({ userSelected, handlerCloseForm }) => {
           onChange={onInputChange}
         />
         <p className="text-danger">{errors?.email}</p>
+
+        <div className="my-3 form-check">
+          <input
+            type="checkbox"
+            name="admin"
+            checked={admin}
+            className="form-check-input"
+            onChange={onCheckboxChange}
+          />
+          <p>Admin</p>
+        </div>
+
         <input type="hidden" name="id" value={id} />
         <button className="btn btn-primary" type="submit">
           {id > 0 ? "Editar" : "Crear"}
         </button>
-        {!handlerCloseForm || <button className="btn btn-warning mx-2" type="button" onClick={() => onCloseForm()}>Cerrar</button>}
+        {!handlerCloseForm || (
+          <button
+            className="btn btn-warning mx-2"
+            type="button"
+            onClick={() => onCloseForm()}
+          >
+            Cerrar
+          </button>
+        )}
       </form>
     </>
   );

@@ -1,8 +1,9 @@
-import { useReducer, useState } from "react";
+import { useContext, useReducer, useState } from "react";
 import { usersReducer } from "../reducers/usersReducer";
 import Swal from "sweetalert2";
 import { useNavigate } from "react-router-dom";
 import { findAll, remove, save, update } from "../services/userService";
+import { AuthContext } from "../auth/context/AuthContext";
 
 const initialUsers = [];
 
@@ -11,6 +12,7 @@ const initalUserForm = {
     username: "",
     password: "",
     email: "",
+    admin: false,
 }
 
 const initialErrors = {
@@ -27,17 +29,30 @@ export const useUsers = () => {
 
     const [errors, setErrors] = useState(initialErrors);
     const navigate = useNavigate();
+    const { login, handlerLogout } = useContext(AuthContext);
+
     const getUsers = async () => {
-        const result = await findAll();
-        console.log(result);
-        dispatch({
-            type: "loadingUsers",
-            payload: result.data,
-        });
+
+        try {
+            const result = await findAll();
+            console.log(result);
+            dispatch({
+                type: "loadingUsers",
+                payload: result.data,
+            });
+
+        } catch (error) {
+            if (error.response?.status === 401) {
+                handlerLogout();
+                return false;
+            }
+        }
     }
 
 
     const handlerAddUser = async (user) => {
+
+        if (!login.isAdmin) return;
         let response;
 
         try {
@@ -62,24 +77,30 @@ export const useUsers = () => {
             return true;
 
         } catch (error) {
-            if(error.response && error.response.status == 400){
-                setErrors(error.response.data);
-            }else if (error.response && error.response.status == 500 && error.response.data?.message.includes("constraint")) {
-                if(error.response.data?.message.includes("UK_username")){
-                    setErrors({username: "El username ya existe"});
-                }
-                if(error.response.data?.message.includes("UK_email")){
-                    setErrors({email: "El email ya existe"});
-                }
-            } else {
-                throw error;
+            if (error.response?.status === 401) {
+                handlerLogout();
+                return false;
             }
-            return false;
+
+            if (error.response?.status === 400) {
+                setErrors(error.response.data);
+            } else if (error.response?.status === 500 && error.response.data?.message?.includes("constraint")) {
+                if (error.response.data?.message.includes("UK_username")) {
+                    setErrors({ username: "El username ya existe" });
+                }
+                if (error.response.data?.message.includes("UK_email")) {
+                    setErrors({ email: "El email ya existe" });
+                } else {
+                    throw error;
+                }
+                return false;
+            }
         }
     }
 
     const handlerRemoveUser = (id) => {
         console.log(id);
+        if (!login.isAdmin) return;
 
         Swal.fire({
             title: "Estas seguro?",
@@ -89,18 +110,25 @@ export const useUsers = () => {
             confirmButtonColor: "#3085d6",
             cancelButtonColor: "#d33",
             confirmButtonText: "Si, Eliminarlo!"
-        }).then((result) => {
+        }).then(async (result) => {
             if (result.isConfirmed) {
-                remove(id);
-                dispatch({
-                    type: "removeUser",
-                    payload: id,
-                });
-                Swal.fire({
-                    title: "Usuario Eliminado!",
-                    text: "El usuario ha sido Eliminado con exito.",
-                    icon: "success"
-                });
+                try {
+
+                    await remove(id);
+                    dispatch({
+                        type: "removeUser",
+                        payload: id,
+                    });
+                    Swal.fire({
+                        title: "Usuario Eliminado!",
+                        text: "El usuario ha sido Eliminado con exito.",
+                        icon: "success"
+                    });
+                } catch (error) {
+                    if (error.response?.status == 401) {
+                        handlerLogout();
+                    }
+                }
             }
         });
     }

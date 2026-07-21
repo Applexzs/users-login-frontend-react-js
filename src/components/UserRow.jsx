@@ -1,20 +1,27 @@
 import { useContext } from "react";
 import { NavLink } from "react-router-dom"
 import { UserContext } from "../context/UserContext";
+import { AuthContext } from "../auth/context/AuthContext";
 
-export const UserRow = ({ id, username, email}) => { 
+export const UserRow = ({ id, username, email, admin}) => { 
     const { handlerUserSelectedForm, handlerRemoveUser } = useContext(UserContext);
+    const { login } = useContext(AuthContext);
     return ( 
         <>
              <tr>
               <td>{id}</td>
               <td>{username}</td>
               <td>{email}</td>
+              {!login.isAdmin || <>
+              
+              
+             
               <td>
                 <button type="button" className="btn btn-secondary btn-sm" onClick={() => handlerUserSelectedForm({
                     id: id,
                     username: username,
                     email: email,
+                    admin,
                 })}>
                   Update
                 </button>
@@ -29,6 +36,7 @@ export const UserRow = ({ id, username, email}) => {
                   Remove
                 </button>
               </td>
+               </>}
             </tr>
         </>
     )
